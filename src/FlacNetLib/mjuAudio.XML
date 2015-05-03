@@ -1,0 +1,128 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>mjuAudio</name>
+    </assembly>
+    <members>
+        <member name="T:mjuAudio.AudioFile">
+            <summary>
+            A class representing a generic audio file, with appropriate generic methods and fields to
+            be used by mjuPlayer.
+            </summary>
+        </member>
+        <member name="M:mjuAudio.AudioFile.#ctor">
+            <summary>
+            The default constructor.
+            </summary>
+        </member>
+        <member name="M:mjuAudio.AudioFile.BeginDecode(System.Int32,System.Int64)">
+            <summary>
+            Initiates a decode-to-stream operation from a given track in the file.
+            </summary>
+            <param name="startTrack">The number of the first track to decode.</param>
+            <param name="sampleOffset">An offset in number of samples from the start of the track, where to start decoding.</param>
+            <remarks>This method
+            must be called before <see cref="M:mjuAudio.AudioFile.DecodeToStream(System.Int32,System.Boolean@)"/> can be used.
+            In derived classes, make sure overrides of this function call the
+            base version, or manually handle the <see cref="P:mjuAudio.AudioFile.IsDecoding"/> property.</remarks>
+            <example>
+            A typical decode-to-stream operation is shown below,
+            whereby the first 20.000 samples in a file get decoded to a memory stream:
+            <code>
+            AudioFile f = new AudioFile(@"c:\sample.flac");
+            f.BeginDecode(1);
+            MemoryStream ms = f.DecodeToStream(20000);
+            f.EndDecode();
+            </code>
+            </example>
+        </member>
+        <member name="M:mjuAudio.AudioFile.EndDecode">
+            <summary>
+            Ends a decode-to-stream operation.
+            </summary>
+            <remarks>Performs necessary cleanup operations. This method must be called when the decode-to-stream
+            operation is complete. In derived classes, make sure overrides of this function call the
+            base version, or manually handle the <see cref="P:mjuAudio.AudioFile.IsDecoding"/> property.</remarks>
+            <example>
+            A typical decode-to-stream operation is shown below,
+            whereby 20.000 samples get decoded to a memory stream:
+            <code>
+            AudioFile f = new AudioFile(@"c:\sample.flac");
+            f.BeginDecode(1);
+            MemoryStream ms = f.DecodeToStream(20000);
+            f.EndDecode();
+            </code>
+            </example>
+        </member>
+        <member name="M:mjuAudio.AudioFile.DecodeToStream(System.Int32,System.Boolean@)">
+            <summary>
+            Decodes a given number of samples starting from the current position.
+            </summary>
+            <param name="numSamples">The number of samples to decode.</param>
+            <param name="done">Set to <c>true</c> if the end of file is encountered while decoding, and to <c>false</c> otherwise.</param>
+            <returns>A resizable <see cref="T:System.IO.MemoryStream"/> containing the decoded samples.</returns>
+            <remarks><see cref="M:mjuAudio.AudioFile.BeginDecode(System.Int32,System.Int64)"/> 
+            must be called before this method can be used, otherwise a
+            <see cref="T:System.NullReferenceException"/> may be thrown.<br/>When the call returns,
+            the current position is advanced to the first sample after the last decoded one, so 
+            that several calls to
+            DecodeToStream can be made between BeginDecode() and EndDecode() calls: 
+            </remarks>
+            <example>
+            A typical decode-to-stream operation is shown below,
+            whereby the first 20.000 samples of a file get decoded to a memory stream:
+            <code>
+            FlacFile f = new FlacFile(@"c:\sample.flac");
+            f.BeginDecode(0);
+            MemoryStream ms = f.DecodeToStream(20000);
+            f.EndDecode();
+            </code>
+            </example>
+            <seealso cref="M:mjuAudio.AudioFile.BeginDecode(System.Int32,System.Int64)"/>
+            <seealso cref="M:mjuAudio.AudioFile.EndDecode"/>
+        </member>
+        <member name="M:mjuAudio.AudioFile.SeekTo(System.Int64)">
+            <summary>
+            Sets the current file position to a given sample.
+            </summary>
+            <param name="sampleNumber">The number of the next sample to decode.</param>
+        </member>
+        <member name="P:mjuAudio.AudioFile.MultiTrack">
+            <summary>Gets whether the file contains multiple tracks.</summary>
+        </member>
+        <member name="P:mjuAudio.AudioFile.SampleRate">
+            <summary> Gets the file sample rate, in number of samples per second.</summary>
+        </member>
+        <member name="P:mjuAudio.AudioFile.NumberOfChannels">
+            <summary>Gets the number of channels.</summary>
+        </member>
+        <member name="P:mjuAudio.AudioFile.SampleSize">
+            <summary>Gets the sample size, in bits per sample.</summary>
+        </member>
+        <member name="P:mjuAudio.AudioFile.CurrentSample">
+            <summary>
+            Gets or sets the number of the first sample that will be returned
+            by the next call to <see cref="M:mjuAudio.AudioFile.DecodeToStream(System.Int32,System.Boolean@)"/>.
+            </summary>
+            <remarks>The value of CurrentSample is meaningless before a call to <see cref="M:mjuAudio.AudioFile.BeginDecode(System.Int32,System.Int64)"/>
+            or after a call to <see cref="M:mjuAudio.AudioFile.EndDecode"/>.</remarks>
+        </member>
+        <member name="P:mjuAudio.AudioFile.TrackLastSample">
+            <summary>
+            Gets the number of the last sample in the track currently being decoded.
+            </summary>
+            <remarks><para>The value of TrackLastSample is meaningless before a call to <see cref="M:mjuAudio.AudioFile.BeginDecode(System.Int32,System.Int64)"/>
+            or after a call to <see cref="M:mjuAudio.AudioFile.EndDecode"/>. The "track currently being decoded" is the 
+            track that the <see cref="P:mjuAudio.AudioFile.CurrentSample"/> belongs to.</para>
+            <para>The value -1 may be used in single-track files as meaning "the number of the
+            last sample in the file".</para></remarks>
+        </member>
+        <member name="P:mjuAudio.AudioFile.IsDecoding">
+            <summary>
+            Gets whether the file is currently being decoded.
+            </summary>
+            <value>This property is <c>false</c> when the <see cref="T:mjuAudio.AudioFile"/> is created.
+            It is set to <c>true</c> by <see cref="M:mjuAudio.AudioFile.BeginDecode(System.Int32,System.Int64)"/> and to <c>false</c> by <see cref="M:mjuAudio.AudioFile.EndDecode"/>.</value>
+        </member>
+    </members>
+</doc>
