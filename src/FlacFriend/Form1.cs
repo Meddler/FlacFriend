@@ -406,7 +406,7 @@ namespace FlacFriend
                     row.Cells[Columns.TrackNo].Value = trackNo;
                 }
 
-                match = Regex.Match(fileName, @"[A-Za-z ',()]+").Value;
+                match = Regex.Match(fileName, @"[A-Za-z][A-Za-z ',()]+").Value;
                 if (!string.IsNullOrEmpty(match))
                 {
                     row.Cells[Columns.Title].Value = match;
